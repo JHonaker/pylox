@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 
 import sys
+import scanner as scn
 
 had_error = False
 
@@ -23,7 +24,7 @@ def run_prompt():
         had_error = False
 
 def run(source):
-    scanner = Scanner(source)
+    scanner = scn.Scanner(source)
     tokens = scanner.scan_tokens()
 
     for token in tokens:
@@ -47,7 +48,7 @@ def main():
     elif num_args == 1:
         run_file(sys.argv[1])
     else:
-        runPrompt()
+        run_prompt()
 
 if __name__ == "__main__":
     main()
