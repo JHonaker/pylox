@@ -49,23 +49,23 @@ class TokenType(Enum):
     WHILE = 38
 
     EOF = 39
-)
+
 
 class Token:
 
-    def __init__(token_type, lexeme, literal, line):
+    def __init__(self, token_type, lexeme, literal, line):
         self.token_type = token_type
         self.lexeme = lexeme
         self.literal = literal
         self.line = line
 
-    def __str__():
-        return self.type + " " + lexeme + " " + literal
+    def __str__(self):
+        return str(self.token_type) + " " + str(self.lexeme) + " " + str(self.literal)
 
 
 class Scanner:
 
-    def __init__(source):
+    def __init__(self, source):
         """For the initialization of a scanner, we want a reference to
         the source material as well as an empty list of tokens."""
         self._source = source
@@ -76,16 +76,16 @@ class Scanner:
         self._current = 0
 
     @property
-    def tokens():
+    def tokens(self):
         return self._tokens
 
-    def _at_eol(line):
+    def _at_eol(self, line):
         if self._current >= len(line):
             return True
         else:
             return False
 
-    def scan_tokens():
+    def scan_tokens(self):
         """Populate the internal token list given the source material."""
         for line_number, line in enumerate(self._source):
             self._scan_line(line, line_number)
@@ -95,14 +95,14 @@ class Scanner:
 
         return self._tokens
 
-    def _scan_line(line, line_number):
+    def _scan_line(self, line, line_number):
         self._start = 0
         self._current = 0
         while self._current < len(line):
             self._start = self._current
             self._scan_token(line, line_number)
 
-    def _scan_token(line, line_number):
+    def _scan_token(self, line, line_number):
         char = self._advance(line)
 
         token_strings = {
@@ -150,11 +150,11 @@ class Scanner:
         else:
             lox.error(line_number, "Unexpected character.")
 
-    def _advance(line):
+    def _advance(self, line):
         self._current = self._current + 1
         return line[self._current - 1]
 
-    def _match(line, expected):
+    def _match(self, line, expected):
         if self._at_eol(line):
             return False
 
@@ -164,19 +164,19 @@ class Scanner:
         else:
             return False
 
-    def _peek(line):
+    def _peek(self, line):
         """Like advance, but does not consume the character."""
         if self._at_eol(line):
             return '\0'
         else:
             return line[self._current]
 
-    def _consume_to(char, line):
+    def _consume_to(self, char, line):
         while self._peek() != char and self._at_eol():
             self._advance()
         return None
 
-    def _consume_string(line):
+    def _consume_string(self, line):
         self._consume_to('"', line)
 
         if self._at_eol(line):
@@ -187,6 +187,6 @@ class Scanner:
 
         return TokenType.STRING
 
-    def _add_token(token_type, line, line_number, literal = None):
-        text = line[start:(current + 1)]
+    def _add_token(self, token_type, line, line_number, literal = None):
+        text = line[self._start:(self._current + 1)]
         self._tokens.append(Token(token_type, text, literal, line_number))
