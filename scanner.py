@@ -81,8 +81,8 @@ class Scanner:
     def tokens(self):
         return self._tokens
 
-    def _at_eof(self):
-        return self._current >= len(self._source)
+    def _at_eof(self, offset = 0):
+        return self._current + offset >= len(self._source)
 
     def scan_tokens(self):
         """Populate the internal token list given the source material."""
@@ -184,6 +184,17 @@ class Scanner:
         self._advance()
 
         return TokenType.STRING
+
+    def _consume_number(self):
+        while(self._peek().isdigit()):
+            self._advance()
+
+        # Only consume a trailing period if it is followed by a digit
+        if self._peek() == '.' and self._peek(2).isdigit():
+            self._advance()
+
+            while self._peek().isdigit():
+                self._advance()
 
     def _advance_line(self):
         self._line = self._line + 1
