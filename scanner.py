@@ -131,13 +131,18 @@ class Scanner:
             if token_type is not None:
                 if token_type == TokenType.STRING:
                     string_literal = self._source[(self._start+1):(self._current - 1)]
-                    self._add_token(TokenType.STRING,
-                                    string_literal)
+                    self._add_token(TokenType.STRING, string_literal)
                 else:
                     self._add_token(token_type)
             # Else it is a comment, and we don't want to add a token
         else:
-            lox.error(self._line, "Unexpected character.")
+            if char.isdigit():
+                self._consume_number()
+                number_string = self._source[self._start:self._current]
+                number_literal = float(number_string) if '.' in number_string else int(number_string)
+                self._add_token(TokenType.NUMBER, number_literal)
+            else:
+                lox.error(self._line, "Unexpected character.")
 
     def _advance(self):
         self._current = self._current + 1
@@ -153,12 +158,13 @@ class Scanner:
         else:
             return False
 
-    def _peek(self):
+    def _peek(self, ahead = 1):
         """Like advance, but does not consume the character."""
-        if self._at_eof():
+        offset = ahead - 1
+        if self._at_eof(offset):
             return '\0'
         else:
-            return self._source[self._current]
+            return self._source[self._current + offset]
 
     def _consume_to(self, char):
         while self._peek() != char and not self._at_eof():
