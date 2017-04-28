@@ -141,6 +141,9 @@ class Scanner:
                 number_string = self._source[self._start:self._current]
                 number_literal = float(number_string) if '.' in number_string else int(number_string)
                 self._add_token(TokenType.NUMBER, number_literal)
+            elif self._is_valid_literal_start_character(char):
+                self._consume_identifier()
+                self._add_token(TokenType.IDENTIFIER)
             else:
                 lox.error(self._line, "Unexpected character.")
 
@@ -186,7 +189,7 @@ class Scanner:
         return TokenType.STRING
 
     def _consume_number(self):
-        while(self._peek().isdigit()):
+        while self._peek().isdigit():
             self._advance()
 
         # Only consume a trailing period if it is followed by a digit
@@ -195,6 +198,16 @@ class Scanner:
 
             while self._peek().isdigit():
                 self._advance()
+
+    def _consume_identifier(self):
+        while self._is_valid_literal_character(self._peek()):
+            self._advance()
+
+    def _is_valid_literal_start_character(self, c):
+        return c.isalpha() or c == '_'
+
+    def _is_valid_literal_character(self, c):
+        return self._is_valid_literal_start_character(c) or c.isdigit()
 
     def _advance_line(self):
         self._line = self._line + 1
