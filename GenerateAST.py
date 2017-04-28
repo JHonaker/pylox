@@ -1,6 +1,5 @@
 #! /usr/local/bin/python3
 
-import pdb
 import sys
 
 output_dir = None
@@ -12,7 +11,7 @@ base_desc = {
         "Unary": [["Token", "operator"], ["Expr", "right"]],
         "Binary": [["Expr", "left"], ["Token", "operator"], ["Expr", "right"]],
         "Grouping" : [["Expr", "expression"]],
-        "Literal" : [["Object", "value"]]
+        "Literal" : [["object", "value"]]
     }
 }
 
@@ -20,10 +19,11 @@ base_desc = {
 def defineAst(base_name, types):
     path = output_dir + "/" + base_name + ".py"
 
+
     with open(path, "w+") as con:
+        con.write("from scanner import Token\n\n\n")
         con.writelines(["class " + base_name + ":\n",
                         tab + "pass\n\n"])
-        pdb.set_trace()
         for expr_type, expr in types.items():
             defineType(con, base_name, expr_type, expr)
 
@@ -34,7 +34,7 @@ def defineType(con, base_name, class_name, fields):
     field_str = ", ".join(names)
 
     assert_stmts = [tab + tab +
-                    "assert isinstanceof(" + field[1] + ", " + field[0] + ")\n"
+                    "assert isinstance(" + field[1] + ", " + field[0] + ")\n"
                     for field in fields]
 
     var_stmts = [tab + tab +
@@ -50,6 +50,11 @@ def defineType(con, base_name, class_name, fields):
     con.write("\n")
     con.writelines(var_stmts)
     con.write("\n")
+    con.writelines([tab + "def accept(self, visitor):\n",
+                    tab + tab + "return visitor.visit" + class_name + "(self)\n\n"])
+
+
+
 
 
 if __name__ == "__main__":
