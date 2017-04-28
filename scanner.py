@@ -72,33 +72,8 @@ class Scanner:
         self._source = source
         self._tokens = []
 
-        # Indicies for current lexeme
-        self._start = 0
-        self._current = 0
-        self._line = 0
-
-    @property
-    def tokens(self):
-        return self._tokens
-
-    def _at_eof(self, offset = 0):
-        return self._current + offset >= len(self._source)
-
-    def scan_tokens(self):
-        """Populate the internal token list given the source material."""
-        while not self._at_eof():
-            self._start = self._current
-            self._scan_token()
-
-        self._tokens.append(Token(TokenType.EOF, "",
-                                  None, len(self._source) - 1))
-
-        return self._tokens
-
-    def _scan_token(self):
-        char = self._advance()
-
-        token_strings = {
+        # Dictionary for lookup up token literals
+        self._token_strings = {
             # Single character tokens
             '(': lambda c: TokenType.LEFT_PAREN,
             ')': lambda c: TokenType.RIGHT_PAREN,
@@ -126,8 +101,54 @@ class Scanner:
             '"': lambda c: self._consume_string()
         }
 
-        if char in token_strings:
-            token_type = token_strings[char](char)
+        # Dictionary for lookup of reserved words
+        self._reserved_strings = {
+            "and":   TokenType.AND,
+            "class": TokenType.CLASS,
+            "else":  TokenType.ELSE,
+            "false": TokenType.FALSE,
+            "for":   TokenType.FOR,
+            "fun":   TokenType.FUN,
+            "if":    TokenType.IF,
+            "nil":   TokenType.NIL,
+            "or":    TokenType.OR,
+            "print": TokenType.RETURN,
+            "super": TokenType.SUPER,
+            "this":  TokenType.THIS,
+            "true":  TokenType.TRUE,
+            "var":   TokenType.VAR,
+            "while": TokenType.WHILE
+        }
+
+        # Indicies for current lexeme
+        self._start = 0
+        self._current = 0
+        self._line = 0
+
+    @property
+    def tokens(self):
+        return self._tokens
+
+    def _at_eof(self, offset = 0):
+        return self._current + offset >= len(self._source)
+
+    def scan_tokens(self):
+        """Populate the internal token list given the source material."""
+        while not self._at_eof():
+            self._start = self._current
+            self._scan_token()
+
+        self._tokens.append(Token(TokenType.EOF, "",
+                                  None, len(self._source) - 1))
+
+        return self._tokens
+
+    def _scan_token(self):
+        char = self._advance()
+
+
+        if char in self._token_strings:
+            token_type = self._token_strings[char](char)
             if token_type is not None:
                 if token_type == TokenType.STRING:
                     string_literal = self._source[(self._start+1):(self._current - 1)]
@@ -143,7 +164,8 @@ class Scanner:
                 self._add_token(TokenType.NUMBER, number_literal)
             elif self._is_valid_literal_start_character(char):
                 self._consume_identifier()
-                self._add_token(TokenType.IDENTIFIER)
+                token_type = self._recognize_reserved_words()
+                self._add_token(token_type)
             else:
                 lox.error(self._line, "Unexpected character.")
 
@@ -202,6 +224,15 @@ class Scanner:
     def _consume_identifier(self):
         while self._is_valid_literal_character(self._peek()):
             self._advance()
+
+    def _recognize_reserved_words(self):
+        string = self._source[self._start:self._current]
+        token_type = self._reserved_strings.get(string, None)
+
+        if token_type is None:
+            token_type = TokenType.IDENTIFIER
+
+        return token_type
 
     def _is_valid_literal_start_character(self, c):
         return c.isalpha() or c == '_'
