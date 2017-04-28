@@ -90,7 +90,7 @@ class Scanner:
             '=': lambda c: TokenType.EQUAL_EQUAL if self._match('=') else TokenType.EQUAL,
             '<': lambda c: TokenType.LESS_EQUAL if self._match('=') else TokenType.LESS,
             '>': lambda c: TokenType.GREATER_EQUAL if self._match('=') else TokenType.GREATER,
-            '/': lambda c: self._consume_to('\n') if self._match('/') else TokenType.SLASH,
+            '/': lambda c: self._slash_logic(),
             # Ignore Whitespace
             ' ':  lambda c: None,
             '\r': lambda c: None,
@@ -198,8 +198,8 @@ class Scanner:
 
     def _consume_string(self):
         while self._peek() != '"' and not self._at_eof():
-            if self._peek == '\n':
-                self._line = self._line + 1
+            if self._peek() == '\n':
+                self._advance_line()
             self._advance()
 
         if self._at_eof():
@@ -246,3 +246,24 @@ class Scanner:
     def _add_token(self, token_type, literal = None):
         text = self._source[self._start:self._current]
         self._tokens.append(Token(token_type, text, literal, self._line))
+
+    def _slash_logic(self):
+        if self._match('/'):
+            self._consume_to('\n')
+
+        elif self._match('*'):
+            while self._peek() != '*' and self._peek(2) != '/' and not self._at_eof():
+                if self._peek() == '\n':
+                    self._advance_line()
+                self._advance()
+
+            if self._at_eof():
+                lox.error(self._line, "Unterminated comment.")
+                return None
+
+            # Consume '*/'
+            self._advance()
+            self._advance()
+
+        else:
+            return TokenType.SLASH
