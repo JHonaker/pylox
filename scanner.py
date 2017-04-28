@@ -98,7 +98,6 @@ class Scanner:
     def _scan_token(self):
         char = self._advance()
 
-        pdb.set_trace()
         token_strings = {
             # Single character tokens
             '(': lambda c: TokenType.LEFT_PAREN,
@@ -136,7 +135,7 @@ class Scanner:
                     self._add_token(TokenType.STRING,
                                     string_literal)
                 else:
-                    self._add_token(token_strings[char](char))
+                    self._add_token(token_type)
             # Else it is a comment, and we don't want to add a token
         else:
             lox.error(self._line, "Unexpected character.")
