@@ -13,7 +13,3 @@
 ** This is Incomplete.
 
    As of right now, this implementation is incomplete, and any and all code is my interpretation of Bob's ideas.
-
-*** Differences
-    
-    - Does not allow multi-line strings
