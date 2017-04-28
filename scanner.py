@@ -111,7 +111,6 @@ class Scanner:
             ';': lambda c: TokenType.SEMICOLON,
             '*': lambda c: TokenType.STAR,
             # Look ahead one to match the 1 or 2 character tokens
-            # TODO: Look ahead is not working for 2 character tokens
             '!': lambda c: TokenType.BANG_EQUAL if self._match('=') else TokenType.BANG,
             '=': lambda c: TokenType.EQUAL_EQUAL if self._match('=') else TokenType.EQUAL,
             '<': lambda c: TokenType.LESS_EQUAL if self._match('=') else TokenType.LESS,
