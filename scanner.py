@@ -1,4 +1,5 @@
 import lox
+import pdb
 from enum import Enum
 
 class TokenType(Enum):
@@ -74,37 +75,30 @@ class Scanner:
         # Indicies for current lexeme
         self._start = 0
         self._current = 0
+        self._line = 0
 
     @property
     def tokens(self):
         return self._tokens
 
-    def _at_eol(self, line):
-        if self._current >= len(line):
-            return True
-        else:
-            return False
+    def _at_eof(self):
+        return self._current >= len(self._source)
 
     def scan_tokens(self):
         """Populate the internal token list given the source material."""
-        for line_number, line in enumerate(self._source):
-            self._scan_line(line, line_number)
+        while not self._at_eof():
+            self._start = self._current
+            self._scan_token()
 
         self._tokens.append(Token(TokenType.EOF, "",
                                   None, len(self._source) - 1))
 
         return self._tokens
 
-    def _scan_line(self, line, line_number):
-        self._start = 0
-        self._current = 0
-        while self._current < len(line):
-            self._start = self._current
-            self._scan_token(line, line_number)
+    def _scan_token(self):
+        char = self._advance()
 
-    def _scan_token(self, line, line_number):
-        char = self._advance(line)
-
+        pdb.set_trace()
         token_strings = {
             # Single character tokens
             '(': lambda c: TokenType.LEFT_PAREN,
@@ -118,75 +112,78 @@ class Scanner:
             ';': lambda c: TokenType.SEMICOLON,
             '*': lambda c: TokenType.STAR,
             # Look ahead one to match the 1 or 2 character tokens
+            # TODO: Look ahead is not working for 2 character tokens
             '!': lambda c: TokenType.BANG_EQUAL if self._match('=') else TokenType.BANG,
             '=': lambda c: TokenType.EQUAL_EQUAL if self._match('=') else TokenType.EQUAL,
             '<': lambda c: TokenType.LESS_EQUAL if self._match('=') else TokenType.LESS,
             '>': lambda c: TokenType.GREATER_EQUAL if self._match('=') else TokenType.GREATER,
-            '/': lambda c: self._consume_to('\n', line) if self._match('/') else TokenType.SLASH,
+            '/': lambda c: self._consume_to('\n') if self._match('/') else TokenType.SLASH,
             # Ignore Whitespace
             ' ':  lambda c: None,
             '\r': lambda c: None,
             '\t': lambda c: None,
             # Differs from Bob's since line_number comes from array index
-            '\n': lambda c: None,
+            '\n': lambda c: self._advance_line(),
             # Strings consume to EOL or closing "
-            '"': lambda c: self._consume_string(line)
+            '"': lambda c: self._consume_string()
         }
 
         if char in token_strings:
             token_type = token_strings[char](char)
             if token_type is not None:
                 if token_type == TokenType.STRING:
-                    string_literal = line[(self._start+1):self._current]
+                    string_literal = self._source[(self._start+1):(self._current - 1)]
                     self._add_token(TokenType.STRING,
-                                    line,
-                                    line_number,
                                     string_literal)
                 else:
-                    self._add_token(token_strings[char](char),
-                                    line,
-                                    line_number)
+                    self._add_token(token_strings[char](char))
             # Else it is a comment, and we don't want to add a token
         else:
-            lox.error(line_number, "Unexpected character.")
+            lox.error(self._line, "Unexpected character.")
 
-    def _advance(self, line):
+    def _advance(self):
         self._current = self._current + 1
-        return line[self._current - 1]
+        return self._source[self._current - 1]
 
-    def _match(self, line, expected):
-        if self._at_eol(line):
+    def _match(self, expected):
+        if self._at_eof():
             return False
 
-        if line[self._current] == expected:
+        if self._source[self._current] == expected:
             self._advance()
             return True
         else:
             return False
 
-    def _peek(self, line):
+    def _peek(self):
         """Like advance, but does not consume the character."""
-        if self._at_eol(line):
+        if self._at_eof():
             return '\0'
         else:
-            return line[self._current]
+            return self._source[self._current]
 
-    def _consume_to(self, char, line):
-        while self._peek() != char and self._at_eol():
+    def _consume_to(self, char):
+        while self._peek() != char and not self._at_eof():
             self._advance()
         return None
 
-    def _consume_string(self, line):
-        self._consume_to('"', line)
+    def _consume_string(self):
+        while self._peek() != '"' and not self._at_eof():
+            if self._peek == '\n':
+                self._line = self._line + 1
+            self._advance()
 
-        if self._at_eol(line):
-            lox.error(line, "Unterminated string.")
+        if self._at_eof():
+            lox.error(self._line, "Unterminated string.")
             return
 
         self._advance()
 
         return TokenType.STRING
 
-    def _add_token(self, token_type, line, line_number, literal = None):
-        text = line[self._start:(self._current + 1)]
-        self._tokens.append(Token(token_type, text, literal, line_number))
+    def _advance_line(self):
+        self._line = self._line + 1
+
+    def _add_token(self, token_type, literal = None):
+        text = self._source[self._start:self._current]
+        self._tokens.append(Token(token_type, text, literal, self._line))

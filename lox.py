@@ -7,10 +7,10 @@ had_error = False
 
 def run_file(path):
     file = open(path, "r")
-    lines = file.readlines()
+    source = file.read()
     file.close()
 
-    run(lines)
+    run(source)
 
     if had_error:
         sys.exit(65)
@@ -35,7 +35,7 @@ def error(line, msg):
     report(line, "", msg)
 
 def report(line, where, msg):
-    print("[line " + line + "] Error" + where + ": " + msg)
+    print("[line " + str(line) + "] Error" + str(where) + ": " + str(msg))
     had_error = True
 
 
