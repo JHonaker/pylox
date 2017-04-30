@@ -70,7 +70,7 @@ class Scanner:
         """For the initialization of a scanner, we want a reference to
         the source material as well as an empty list of tokens."""
         self._source = source
-        self._tokens = []
+        self.tokens = []
 
         # Dictionary for lookup up token literals
         self._token_strings = {
@@ -125,9 +125,6 @@ class Scanner:
         self._current = 0
         self._line = 0
 
-    @property
-    def tokens(self):
-        return self._tokens
 
     def _at_eof(self, offset = 0):
         return self._current + offset >= len(self._source)
