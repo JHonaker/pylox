@@ -2,8 +2,6 @@
 
 import sys
 
-output_dir = None
-
 tab = "    " # Tab is four spaces
 
 base_desc = {
@@ -16,19 +14,16 @@ base_desc = {
 }
 
 
-def defineAst(base_name, types):
-    path = output_dir + "/" + base_name + ".py"
-
-
-    with open(path, "w+") as con:
-        con.write("from scanner import Token\n\n\n")
-        con.writelines(["class " + base_name + ":\n",
-                        tab + "pass\n\n"])
-        for expr_type, expr in types.items():
-            defineType(con, base_name, expr_type, expr)
+def defineAst(con, base_name, types):
+    """Generate the AST structure classes for the 'base_name' root."""
+    con.write("from scanner import Token\n\n\n")
+    con.writelines(["class " + base_name + ":\n",
+                    tab + "pass\n\n"])
+    for expr_type, expr in types.items():
+        defineType(con, base_name, expr_type, expr)
 
 def defineType(con, base_name, class_name, fields):
-
+    """Generate the AST structure classes for the given sub-tree."""
     types, names = zip(*fields)
 
     field_str = ", ".join(names)
@@ -58,9 +53,6 @@ def defineType(con, base_name, class_name, fields):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: generate_ast <output directory>")
-        sys.exit(1)
-
-    output_dir = sys.argv[1]
-    defineAst("Expr", base_desc["Expr"])
+    path = "grammar.py"
+    with open(path, "w+") as con:
+        defineAst("Expr", base_desc["Expr"])
