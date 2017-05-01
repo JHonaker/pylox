@@ -65,3 +65,42 @@ class Parser:
                   expr = grammer.Binary(expr, operator, right)
 
             return expr
+
+      def _comparison(self):
+            """Matches based on the rule:
+            comparison -> term ( ( > | >= | < | <= ) term)*"""
+            expr = self._term()
+
+            while self._match(TokenType.GREATER,
+                              TokenType.GREATER_EQUAL,
+                              TokenType.LESS,
+                              TokenType.LESS_EQUAL):
+                  operator = self._previous()
+                  right = self._term()
+                  expr = grammar.Binary(expr, operator, right)
+
+            return expr
+
+      def _term(self):
+            """Matches based on the rule:
+            term -> factor ( ( - | + ) factor)*"""
+            expr = self._factor()
+
+            while self._match(TokenType.MINUS, TokenType.PLUS):
+                  operator = self._previous()
+                  right = self._factor()
+                  expr = grammar.Binary(expr, operator, right)
+
+            return expr
+
+      def _factor(self):
+            """Matches based on the rule:
+            factor -> unary ( ( / | * ) unary)*"""
+            expr = self._unary()
+
+            while self._match(TokenType.SLASH, TokenType.STAR):
+                  operator = self._previous()
+                  right = self._unary()
+                  expr = grammar.Binary(expr, operator, right)
+
+            return expr
