@@ -55,4 +55,4 @@ def defineType(con, base_name, class_name, fields):
 if __name__ == "__main__":
     path = "grammar.py"
     with open(path, "w+") as con:
-        defineAst("Expr", base_desc["Expr"])
+        defineAst(con, "Expr", base_desc["Expr"])
