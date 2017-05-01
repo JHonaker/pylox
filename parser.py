@@ -104,3 +104,31 @@ class Parser:
                   expr = grammar.Binary(expr, operator, right)
 
             return expr
+
+      def _unary(self):
+            """Matches based on the rule:
+            unary -> ( ! | - ) unary
+                   | primary"""
+            if self._match(TokenType.BANG, TokenType.MINUS):
+                  operator = self._previous()
+                  right = self._unary()
+                  return grammar.Unary(operator, right)
+
+            return self._primary()
+
+      def _primary(self):
+            if self._match(TokenType.FALSE):
+                  return grammar.Literal(False)
+            elif self._match(TokenType.True):
+                  return grammar.Literal(True)
+            elif self._match(TokenType.NIL):
+                  return grammar.Literal(None)
+
+            elif self._match(TokenType.NUMBER, TokenType.STRING):
+                  return grammar.Literal(self._previous().literal)
+
+            elif self._match(TokenType.LEFT_PAREN):
+                  expr = self._expression()
+                  self._consume(TokenType.RIGHT_PAREN,
+                                "Expect ')' after expression.")
+                  return grammar.Grouping(expr)
