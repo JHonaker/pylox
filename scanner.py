@@ -1,6 +1,4 @@
-import lox
-import pdb
-from enum import Enum
+from enum import Enum, auto
 
 class TokenType(Enum):
     # Single character tokens
@@ -66,9 +64,11 @@ class Token:
 
 class Scanner:
 
-    def __init__(self, source):
+    def __init__(self, interpreter, source):
         """For the initialization of a scanner, we want a reference to
         the source material as well as an empty list of tokens."""
+
+        self._interpreter = interpreter
         self._source = source
         self.tokens = []
 
@@ -135,10 +135,10 @@ class Scanner:
             self._start = self._current
             self._scan_token()
 
-        self._tokens.append(Token(TokenType.EOF, "",
+        self.tokens.append(Token(TokenType.EOF, "",
                                   None, len(self._source) - 1))
 
-        return self._tokens
+        return self.tokens
 
     def _scan_token(self):
         char = self._advance()
@@ -164,7 +164,7 @@ class Scanner:
                 token_type = self._recognize_reserved_words()
                 self._add_token(token_type)
             else:
-                lox.error(self._line, "Unexpected character.")
+                self._interpreter.scan_error(self._line, "Unexpected character.")
 
     def _advance(self):
         self._current = self._current + 1
@@ -200,7 +200,7 @@ class Scanner:
             self._advance()
 
         if self._at_eof():
-            lox.error(self._line, "Unterminated string.")
+            self._interpreter.scan_error(self._line, "Unterminated string.")
             return
 
         self._advance()
@@ -242,7 +242,7 @@ class Scanner:
 
     def _add_token(self, token_type, literal = None):
         text = self._source[self._start:self._current]
-        self._tokens.append(Token(token_type, text, literal, self._line))
+        self.tokens.append(Token(token_type, text, literal, self._line))
 
     def _slash_logic(self):
         if self._match('/'):
@@ -255,7 +255,7 @@ class Scanner:
                 self._advance()
 
             if self._at_eof():
-                lox.error(self._line, "Unterminated comment.")
+                self._interpreter.scan_error(self._line, "Unterminated comment.")
                 return None
 
             # Consume '*/'
