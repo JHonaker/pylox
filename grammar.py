@@ -1,5 +1,4 @@
-from scanner import Token
-
+import scanner
 
 class Expr:
     pass
@@ -7,7 +6,7 @@ class Expr:
 
 class Unary(Expr):
     def __init__(self, operator, right):
-        assert isinstance(operator, Token)
+        assert isinstance(operator, scanner.Token)
         assert isinstance(right, Expr)
 
         self.operator = operator
@@ -20,7 +19,7 @@ class Unary(Expr):
 class Binary(Expr):
     def __init__(self, left, operator, right):
         assert isinstance(left, Expr)
-        assert isinstance(operator, Token)
+        assert isinstance(operator, scanner.Token)
         assert isinstance(right, Expr)
 
         self.left = left

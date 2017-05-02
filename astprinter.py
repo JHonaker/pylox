@@ -1,7 +1,7 @@
 #! /usr/local/bin/python3
 
-from out.Expr import *
-from scanner import Token, TokenType
+import grammar
+import scanner
 
 class AstPrinter:
     def printast(self, expr):
@@ -31,11 +31,11 @@ class AstPrinter:
         return string
 
 if __name__ == "__main__":
-    expression = Binary(
-        Unary(
-            Token(TokenType.MINUS, "-", None, 1),
+    expression = grammar.Binary(
+        grammar.Unary(
+            scanner.Token(scanner.TokenType.MINUS, "-", None, 1),
             Literal(123)),
-        Token(TokenType.STAR, "*", None, 1),
-        Grouping(
-            Literal(45.67)))
+        scanner.Token(scanner.TokenType.STAR, "*", None, 1),
+        grammar.Grouping(
+            grammar.Literal(45.67)))
     print(AstPrinter().printast(expression))

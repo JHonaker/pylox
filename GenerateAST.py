@@ -6,8 +6,8 @@ tab = "    " # Tab is four spaces
 
 base_desc = {
     "Expr": {
-        "Unary": [["Token", "operator"], ["Expr", "right"]],
-        "Binary": [["Expr", "left"], ["Token", "operator"], ["Expr", "right"]],
+        "Unary": [["scanner.Token", "operator"], ["Expr", "right"]],
+        "Binary": [["Expr", "left"], ["scanner.Token", "operator"], ["Expr", "right"]],
         "Grouping" : [["Expr", "expression"]],
         "Literal" : [["object", "value"]]
     }
@@ -16,7 +16,7 @@ base_desc = {
 
 def defineAst(con, base_name, types):
     """Generate the AST structure classes for the 'base_name' root."""
-    con.write("from scanner import Token\n\n\n")
+    con.write("import scanner\n\n\n")
     con.writelines(["class " + base_name + ":\n",
                     tab + "pass\n\n"])
     for expr_type, expr in types.items():
