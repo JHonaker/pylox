@@ -59,7 +59,18 @@ class Parser:
 
       def _expression(self):
             """Matches based on the rule:
-            expression -> equality"""
+            expression -> statement (, statement)*"""
+            expr = self._statement()
+
+            while self._match(scanner.TokenType.COMMA):
+                  right = self._statement()
+                  expr = grammar.Chain(expr, right)
+
+            return expr
+
+      def _statement(self):
+            """Matches based on the rule:
+            statement -> equality"""
             return self._equality()
 
       def _equality(self):
@@ -72,7 +83,7 @@ class Parser:
             while self._match(scanner.TokenType.BANG_EQUAL, scanner.TokenType.EQUAL_EQUAL):
                   operator = self._previous()
                   right = self._comparison()
-                  expr = grammer.Binary(expr, operator, right)
+                  expr = grammar.Binary(expr, operator, right)
 
             return expr
 

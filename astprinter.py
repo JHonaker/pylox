@@ -7,6 +7,9 @@ class AstPrinter:
     def printast(self, expr):
         return expr.accept(self)
 
+    def visitChain(self, expr):
+        return self.parenthesize("chain", expr.left, expr.right)
+
     def visitBinary(self, expr):
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 

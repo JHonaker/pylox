@@ -6,6 +6,7 @@ tab = "    " # Tab is four spaces
 
 base_desc = {
     "Expr": {
+        "Chain": [["Expr", "left"], ["Expr", "right"]],
         "Unary": [["scanner.Token", "operator"], ["Expr", "right"]],
         "Binary": [["Expr", "left"], ["scanner.Token", "operator"], ["Expr", "right"]],
         "Grouping" : [["Expr", "expression"]],

@@ -1,7 +1,20 @@
 import scanner
 
+
 class Expr:
     pass
+
+
+class Chain(Expr):
+    def __init__(self, left, right):
+        assert isinstance(left, Expr)
+        assert isinstance(right, Expr)
+
+        self.left = left
+        self.right = right
+
+    def accept(self, visitor):
+        return visitor.visitChain(self)
 
 
 class Unary(Expr):
