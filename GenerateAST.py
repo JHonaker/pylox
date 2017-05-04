@@ -50,9 +50,6 @@ def defineType(con, base_name, class_name, fields):
                     tab + tab + "return visitor.visit" + class_name + "(self)\n\n"])
 
 
-
-
-
 if __name__ == "__main__":
     path = "grammar.py"
     with open(path, "w+") as con:
