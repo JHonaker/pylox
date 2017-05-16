@@ -51,17 +51,17 @@ class lox:
         self.had_error = True
 
 
-# The main insertion point for the interpreter
+# The main insertion point for the program
 def main():
-    interpreter = lox()
+    program = lox()
     # The first argument in sys.argv will alwyas be lox.py
     num_args = len(sys.argv) - 1
     if num_args > 1:
         print("Usage: pylox [script]")
     elif num_args == 1:
-        interpreter.run_file(sys.argv[1])
+        program.run_file(sys.argv[1])
     else:
-        interpreter.run_prompt()
+        program.run_prompt()
 
 if __name__ == "__main__":
     main()
