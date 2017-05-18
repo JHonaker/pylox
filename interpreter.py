@@ -62,9 +62,8 @@ class Interpreter:
             scanner.TokenType.PLUS : lambda: _concatOrAdd(left, right),
             scanner.TokenType.SLASH : lambda: left / right,
             scanner.TokenType.STAR : lambda: left * right
-            
         }.get(expr.operator.token_type)
 
-        if result is None:
-            
+        return result
+
 
