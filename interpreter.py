@@ -1,5 +1,11 @@
 import scanner
 
+class LoxRuntimeError(Exception):
+    """Raise when the Lox interpreter encounters a runtime error."""
+    def __init__(self, token, message):
+        super().__init__(message)
+        self.token = token
+
 class Interpreter:
 
     def _evaluate(self, expr):
